@@ -50,7 +50,13 @@ class _HomeState extends State<Home> {
               icon: const Icon(Icons.menu),
               onPressed: () {},
             ),
-            title: const Text("Home"),
+            title: Text(
+              "Home",
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
             actions: [
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
