@@ -1,8 +1,9 @@
-import 'package:bytes_machine_test/provider/product_provider.dart';
+import 'provider/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'constants/colors.dart';
 import 'routes/routes.dart';
 
 void main() {
@@ -11,8 +12,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -21,7 +20,7 @@ class MyApp extends StatelessWidget {
         title: 'Bytes Machine Test',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            colorScheme: ColorScheme.fromSeed(seedColor: primary),
             useMaterial3: true,
             textTheme: GoogleFonts.poppinsTextTheme()),
         initialRoute: '/',

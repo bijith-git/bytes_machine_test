@@ -5,13 +5,15 @@ import '../api_client/api_client.dart';
 import '../constants/api_config.dart';
 import '../models/product_model.dart';
 
-enum AppState { loading, complete, error }
+enum AppState { loading, complete, loadMore, noNextPage, error }
 
 class ProductProvider extends ChangeNotifier {
   ProductProvider() {
-    getUsers();
+    getProduct();
   }
 
+  bool hasNextPage = true;
+  int page = 1;
   List<Product> productList = [];
 
   final _apiClient = Api();
@@ -22,24 +24,15 @@ class ProductProvider extends ChangeNotifier {
 
   String get errorMessage => _errorMessage;
 
-  void getUsers() async {
+  Future<void> getProduct() async {
     try {
       _state = AppState.loading;
       notifyListeners();
-      var url = ApiConfig.baseUrl + ApiEndPoint.product;
-      final response = await _apiClient.client<dynamic>(
-        RequestOptions(
-          method: 'POST',
-          path: url,
-          data: FormData.fromMap({'page': 1}),
-          headers: <String, String>{
-            'appid': '2IPbyrCUM7s5JZhnB9fxFAD6',
-          },
-        ),
-      );
-      response.data['list']
-          .map((e) => productList.add(Product.fromJson(e)))
-          .toList();
+      productList.clear();
+      page = 1;
+      hasNextPage = true;
+      List<dynamic>? productTemp = await productAPICall();
+      productTemp.map((e) => productList.add(Product.fromJson(e))).toList();
       _state = AppState.complete;
     } catch (error) {
       _errorMessage = error.toString();
@@ -49,6 +42,53 @@ class ProductProvider extends ChangeNotifier {
       }
     } finally {
       notifyListeners();
+    }
+  }
+
+  Future<List<dynamic>> productAPICall() async {
+    try {
+      var url = ApiConfig.baseUrl + ApiEndPoint.product;
+      final response = await _apiClient.client<dynamic>(
+        RequestOptions(
+          method: 'POST',
+          path: url,
+          data: FormData.fromMap({'page': page}),
+          headers: <String, String>{
+            'appid': '2IPbyrCUM7s5JZhnB9fxFAD6',
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        return response.data['list'];
+      }
+    } catch (error) {
+      _errorMessage = error.toString();
+      _state = AppState.error;
+    }
+    return [];
+  }
+
+  Future<void> loadMoreProduct(ScrollController scrollController) async {
+    if (hasNextPage == true &&
+        state == AppState.complete &&
+        scrollController.position.pixels ==
+            scrollController.position.maxScrollExtent) {
+      _state = AppState.loadMore;
+      notifyListeners();
+      page += 1;
+      try {
+        List<dynamic> products = await productAPICall();
+        _state = AppState.complete;
+        if (products.isNotEmpty) {
+          products.map((e) => productList.add(Product.fromJson(e))).toList();
+          notifyListeners();
+        } else {
+          hasNextPage = false;
+          notifyListeners();
+        }
+      } catch (err) {
+        debugPrint('Something went wrong!');
+      }
     }
   }
 }

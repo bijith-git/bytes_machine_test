@@ -1,107 +1,114 @@
+import '../../constants/colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import 'package:bytes_machine_test/models/product_model.dart';
-import 'package:bytes_machine_test/utils/utils.dart';
+import '../../models/product_model.dart';
+import '../../utils/utils.dart';
 
-class HomeItemWidget extends StatelessWidget {
-  final Product product;
+class HomeItemWidget extends StatefulWidget {
   const HomeItemWidget({
     super.key,
     required this.product,
   });
 
+  final Product product;
+
+  @override
+  State<HomeItemWidget> createState() => _HomeItemWidgetState();
+}
+
+class _HomeItemWidgetState extends State<HomeItemWidget> {
+  bool isFavorite = false;
+
   @override
   Widget build(BuildContext context) {
     return Card(
+      surfaceTintColor: Colors.white,
       elevation: 3,
-      child: Container(
-        padding: const EdgeInsets.all(10.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 1.0,
-              blurRadius: 3.0,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child: Image.network(
-                    product.image,
-                    height: 120.0,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Center(child: Icon(Icons.error)),
-                  ),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              CachedNetworkImage(
+                imageUrl: widget.product.image,
+                imageBuilder: (context, imageProvider) => Container(
+                  height: 120.0,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10)),
+                      image: DecorationImage(
+                          image: imageProvider, fit: BoxFit.cover)),
                 ),
-                Positioned(
-                  top: 5.0,
-                  right: 5.0,
-                  child: IconButton(
-                    icon: const Icon(
-                      // isFavorite ?
-                      Icons.favorite,
-                      //: Icons.favorite_border,
-                      color: Colors.red,
+                progressIndicatorBuilder: (context, url, progress) =>
+                    const SizedBox(
+                        height: 120.0,
+                        width: double.infinity,
+                        child: Center(child: CircularProgressIndicator())),
+                errorWidget: (context, error, stackTrace) =>
+                    const Center(child: Icon(Icons.error)),
+              ),
+              Positioned(
+                top: 5.0,
+                right: 5.0,
+                child: IconButton(
+                  style: IconButton.styleFrom(backgroundColor: Colors.white),
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: primary,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      isFavorite = !isFavorite;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10.0),
+                Text(
+                  widget.product.title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(fontWeight: FontWeight.bold),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 5.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "₹${widget.product.price}",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          letterSpacing: .5,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    onPressed: () {},
-                  ),
+                    IconButton(
+                        onPressed: () =>
+                            Utils.showSnackbar(context, "Item added to cart"),
+                        icon:
+                            const Icon(Icons.add_shopping_cart, color: primary))
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 10.0),
-            Text(
-              product.title,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(fontWeight: FontWeight.bold),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 5.0),
-            Text(
-              "₹${product.price}",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(letterSpacing: .5),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Row(
-              children: [
-                OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                    onPressed: () {},
-                    child: const Icon(Icons.watch)),
-                const Expanded(child: AdaptiveAddToCart()
-                    // ElevatedButton(
-                    //     onPressed: () {},
-                    //     child: Text(
-                    //       "Add to cart",
-                    //       style: Theme.of(context)
-                    //           .textTheme
-                    //           .bodyLarge!
-                    //           .copyWith(fontWeight: FontWeight.bold),
-                    // )
-                    // ),
-                    )
-              ],
-            )
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
