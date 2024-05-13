@@ -20,6 +20,19 @@ class HomeItemWidget extends StatefulWidget {
 class _HomeItemWidgetState extends State<HomeItemWidget> {
   bool isFavorite = false;
 
+  IconData getCategoryIcon(String type) {
+    switch (type) {
+      case 'shoe':
+        return Icons.directions_walk_rounded;
+      case 'watch':
+        return Icons.watch;
+      case 'toy':
+        return Icons.toys;
+      default:
+        return Icons.sell;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -39,8 +52,8 @@ class _HomeItemWidgetState extends State<HomeItemWidget> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                       borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10)),
+                          topLeft: Radius.circular(5),
+                          topRight: Radius.circular(5)),
                       image: DecorationImage(
                           image: imageProvider, fit: BoxFit.cover)),
                 ),
@@ -66,6 +79,18 @@ class _HomeItemWidgetState extends State<HomeItemWidget> {
                       isFavorite = !isFavorite;
                     });
                   },
+                ),
+              ),
+              Positioned(
+                top: 5.0,
+                left: 5.0,
+                child: IconButton(
+                  style: IconButton.styleFrom(backgroundColor: Colors.white),
+                  icon: Icon(
+                    getCategoryIcon(widget.product.type),
+                    color: primary,
+                  ),
+                  onPressed: () {},
                 ),
               ),
             ],

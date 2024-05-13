@@ -30,6 +30,13 @@ class _HomeState extends State<Home> {
     scrollController = ScrollController();
   }
 
+  List<Map<String, dynamic>> bottomNaviationList = [
+    {"label": "Home", "icon": Icons.home_outlined},
+    {"label": "Cart", "icon": Icons.shopping_bag_outlined},
+    {"label": "Favorites", "icon": Icons.favorite_outline},
+    {"label": "Profile", "icon": Icons.person_2_outlined},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ProductProvider>(builder: (context, productProvider, _) {
@@ -37,6 +44,8 @@ class _HomeState extends State<Home> {
           .addListener(() => productProvider.loadMoreProduct(scrollController));
       return Scaffold(
           appBar: AppBar(
+            elevation: 0,
+            scrolledUnderElevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.menu),
               onPressed: () {},
@@ -50,20 +59,14 @@ class _HomeState extends State<Home> {
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
-            selectedItemColor: primary,
-            unselectedItemColor: Colors.black,
-            type: BottomNavigationBarType.fixed,
-            items: [
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined), label: "Home"),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_bag_outlined), label: "Cart"),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite_outline), label: "Favorites"),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.person_2_outlined), label: "Profile"),
-            ],
-          ),
+              selectedItemColor: primary,
+              unselectedItemColor: Colors.black,
+              type: BottomNavigationBarType.fixed,
+              items: List.generate(bottomNaviationList.length, (i) {
+                var nav = bottomNaviationList[i];
+                return BottomNavigationBarItem(
+                    icon: Icon(nav['icon']), label: nav['label']);
+              })),
           body: Center(
             child: productProvider.state == AppState.loading
                 ? const CircularProgressIndicator()
